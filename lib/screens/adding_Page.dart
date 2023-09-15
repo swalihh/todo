@@ -1,15 +1,15 @@
+import 'dart:convert';  
 import 'package:flutter/material.dart';
-
+import 'package:http/http.dart' as http;
 class adding extends StatefulWidget {
-  const adding({super.key});
 
   @override
   State<adding> createState() => _addingState();
 }
 
 class _addingState extends State<adding> {
-  TextEditingController namecontroller =TextEditingController();
-  TextEditingController notecontroller =TextEditingController();
+  TextEditingController titlecontroller =TextEditingController();
+  TextEditingController descriptioncontroller =TextEditingController();
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,31 +21,72 @@ class _addingState extends State<adding> {
         child: Column(
           children: [
             TextFormField(
-              controller: namecontroller,
-              decoration: InputDecoration(hintText: 'name'),
+              controller: titlecontroller,
+              decoration: InputDecoration(hintText: 'title'),
             ),
              TextFormField(
-              controller: notecontroller,
-              decoration: InputDecoration(hintText: 'note'),
+              controller: descriptioncontroller,
+              decoration: InputDecoration(hintText: 'description'),
             ),
             SizedBox(height: 30,),
-            ElevatedButton(onPressed: (){}, child: Text('Submit'))
+            ElevatedButton(onPressed: submitData, child: Text('Submit'))
           ],
         ),
       ),
     );
   }
 
-  void submitData(){
+ Future submitData()async {
  //to get data from server
-    final name =namecontroller.text;
-    final note = notecontroller.text;
+    final title =titlecontroller.text;
+    final description = descriptioncontroller.text;
     final body ={
-  "name" : name,
-  "note" :note,
+  "title" :title ,
+  "description" :description,
   "is_completed":false,
 
     };
 
+
+    //submit data to server
+    final url ='https://api.nstack.in/v1/todos';
+    final uri =Uri.parse(url);
+     final responce  = await http.post(
+     uri,
+     body:jsonEncode(body), 
+     headers: {
+      'Content-Type': 'application/json'
+     }
+     );
+ 
+   //show success or fail message
+  if(responce.statusCode ==201){
+    titlecontroller.text=='';
+    descriptioncontroller.text=='';
+   print('success');
+   showsuccessMessenger('success');
+  }else{
+    print('failed');
+   showerrorMessenger('failed to add');
   }
+   
+ }  
+ void  showsuccessMessenger(String message){
+  final snackBar =SnackBar(content: Text(message,
+  style: TextStyle(color: Colors.white),
+  ),
+  backgroundColor: Color.fromARGB(255, 10, 102, 33),
+  );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+ }
+ void  showerrorMessenger(String message){
+  final snackBar =SnackBar(content: Text(message,
+  style: TextStyle(color: Colors.white),
+  ),
+  backgroundColor: Color.fromARGB(255, 102, 10, 10),
+  );
+  ScaffoldMessenger.of(context).showSnackBar(snackBar);
+ }
+ 
+
 }
