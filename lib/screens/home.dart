@@ -13,7 +13,7 @@ class home extends StatefulWidget {
 }
 
 class _homeState extends State<home> {
-  bool isloading =false;
+  bool isloading = false;
   List items = [];
 
   @override
@@ -35,22 +35,44 @@ class _homeState extends State<home> {
           ));
         },
       ),
-      body: Visibility( 
-        
+      body: Visibility(
         visible: isloading,
-       child : Center(
+        child: Center(
           child: CircularProgressIndicator(),
         ),
         replacement: RefreshIndicator(
-          onRefresh: fetchTodo ,
+          onRefresh: fetchTodo,
           child: ListView.builder(
             itemCount: items.length,
             itemBuilder: (context, index) {
-             final item =items[index]as Map; 
+              final item = items[index] as Map;
+              final id = item['_id'] as String;
               return ListTile(
-                leading: CircleAvatar(child: Text('${index+1}')),
-                title: Text(item['title']),
+                leading: CircleAvatar(child: Text('${index + 1}')),
+                title: Text(item['title']), 
                 subtitle: Text(item['description']),
+                trailing: PopupMenuButton(
+                  onSelected: (value) {
+                    if(value=='edit'){
+                      //open edit page
+                    } else if(value == 'delete'){
+                      // delete the item
+
+                     // deleteByid()
+                    }
+                    
+                  },
+                  itemBuilder: (context) {
+                    return [
+                      PopupMenuItem(child: Text('edit')
+                      ,value: 'edit',
+                      ),
+                      PopupMenuItem(child: Text('delete')
+                      ,value:'delete',
+                      ),
+                    ];
+                  },
+                ),
               );
             },
           ),
@@ -58,6 +80,14 @@ class _homeState extends State<home> {
       ),
     );
   }
+
+Future <void> deleteByid(String id)async{
+//delete the item
+
+
+
+//remove the item from the list
+}
 
   Future<void> fetchTodo() async {
     final Url = 'https://api.nstack.in/v1/todos';
@@ -74,4 +104,6 @@ class _homeState extends State<home> {
       isloading = false;
     });
   }
+  
+    
 }
